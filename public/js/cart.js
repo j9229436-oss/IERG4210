@@ -171,16 +171,35 @@ class ShoppingCartUI {
     this.cartToggleBtn = document.getElementById('cart-toggle-btn');
     this.cartList = this.cartContainer?.querySelector('ul');
     this.checkoutBtn = this.cartContainer?.querySelector('button');
-    
     this.init();
   }
 
   init() {
     // Show toggle button if cart exists
     if (this.cartToggleBtn && this.cartContainer) {
+      console.log('[CartUI] 初始化: 找到 cartToggleBtn 和 cartContainer');
       this.cartToggleBtn.style.display = 'block';
+      // 強制初始化購物車 display 狀態
+      this.cartContainer.style.display = 'none';
+      this.cartToggleBtn.textContent = 'Show Cart';
+      // 強化 debug 樣式，確保可點擊
+      this.cartToggleBtn.style.zIndex = '9999';
+      this.cartToggleBtn.style.position = 'fixed';
+      this.cartToggleBtn.style.pointerEvents = 'auto';
+      this.cartToggleBtn.style.border = '2px solid red'; // debug
+      // 綁定關閉按鈕
+      const closeBtn = document.getElementById('cart-close-btn');
+      if (closeBtn) {
+        closeBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.cartContainer.style.display = 'none';
+          this.cartToggleBtn.textContent = 'Show Cart';
+        });
+      }
       this.setupToggle();
       this.render();
+    } else {
+      console.warn('[CartUI] 缺少 cartToggleBtn 或 cartContainer', this.cartToggleBtn, this.cartContainer);
     }
   }
 
@@ -188,20 +207,34 @@ class ShoppingCartUI {
    * Setup toggle functionality
    */
   setupToggle() {
-    this.cartToggleBtn.addEventListener('click', () => {
+    // Toggle button click
+    this.cartToggleBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
       const isVisible = this.cartContainer.style.display === 'block';
-      this.cartContainer.style.display = isVisible ? 'none' : 'block';
-      this.cartToggleBtn.textContent = isVisible ? 'Show Cart' : 'Hide Cart';
-    });
-
-    // Close cart when clicking outside
-    document.addEventListener('click', (e) => {
-      const clickedInsideCart = this.cartContainer?.contains(e.target);
-      const clickedToggle = this.cartToggleBtn?.contains(e.target);
-      
-      if (!clickedInsideCart && !clickedToggle && this.cartContainer) {
+      console.log('[CartUI] Toggle 按下, isVisible:', isVisible);
+      if (isVisible) {
         this.cartContainer.style.display = 'none';
         this.cartToggleBtn.textContent = 'Show Cart';
+        console.log('[CartUI] 購物車已關閉');
+      } else {
+        this.cartContainer.style.display = 'block';
+        this.cartToggleBtn.textContent = 'Hide Cart';
+        console.log('[CartUI] 購物車已開啟');
+      }
+    });
+
+    // 點擊購物車內部不關閉
+    this.cartContainer.addEventListener('click', (e) => {
+      e.stopPropagation();
+      console.log('[CartUI] 點擊購物車內容');
+    });
+
+    // 點擊頁面其他地方自動關閉
+    document.addEventListener('click', () => {
+      if (this.cartContainer.style.display === 'block') {
+        this.cartContainer.style.display = 'none';
+        this.cartToggleBtn.textContent = 'Show Cart';
+        console.log('[CartUI] 點擊外部，自動關閉購物車');
       }
     });
   }

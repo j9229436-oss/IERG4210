@@ -34,7 +34,10 @@
   </main>
 
   <aside class="shopping-list">
-    <h2>Shopping List</h2>
+    <div style="display: flex; align-items: center; justify-content: space-between;">
+      <h2 style="margin: 0;">Shopping List</h2>
+      <button id="cart-close-btn" style="background:none;border:none;font-size:1.5em;cursor:pointer;line-height:1;">×</button>
+    </div>
     <div class="cart-total">Total: $0.00</div>
     <ul>
       <!-- Cart items will be populated by JavaScript -->
