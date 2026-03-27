@@ -1,5 +1,6 @@
 const sqlite3 = require('sqlite3').verbose();
 const path = require('path');
+const bcrypt = require('bcryptjs');
 
 const DB_PATH = path.join(__dirname, 'ecommerce.db');
 
@@ -13,6 +14,56 @@ const db = new sqlite3.Database(DB_PATH, (err) => {
 
 // Initialize database with tables
 db.serialize(() => {
+  // Create users table
+  db.run(`CREATE TABLE IF NOT EXISTS users (
+    userid INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT NOT NULL UNIQUE,
+    password TEXT NOT NULL,
+    is_admin INTEGER DEFAULT 0,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  )`, (err) => {
+    if (err) console.error('Error creating users table:', err);
+    else {
+      console.log('Users table ready');
+      // Insert sample users if they don't exist
+      db.get('SELECT COUNT(*) as count FROM users', (err, row) => {
+        if (err) {
+          console.error('Error checking users:', err);
+          return;
+        }
+        if (!row || row.count === 0) {
+          // Insert admin user
+          const adminPassword = bcrypt.hashSync('admin123456', 10);
+          db.run(
+            'INSERT INTO users (email, password, is_admin) VALUES (?, ?, 1)',
+            [
+              'admin@example.com',
+              adminPassword
+            ],
+            (err) => {
+              if (err) console.error('Error inserting admin user:', err);
+              else console.log('Admin user inserted');
+            }
+          );
+
+          // Insert normal user
+          const userPassword = bcrypt.hashSync('user123456', 10);
+          db.run(
+            'INSERT INTO users (email, password, is_admin) VALUES (?, ?, 0)',
+            [
+              'user@example.com',
+              userPassword
+            ],
+            (err) => {
+              if (err) console.error('Error inserting normal user:', err);
+              else console.log('Normal user inserted');
+            }
+          );
+        }
+      });
+    }
+  });
+
   // Create categories table
   db.run(`CREATE TABLE IF NOT EXISTS categories (
     catid INTEGER PRIMARY KEY AUTOINCREMENT,

@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Login - E-Commerce Site</title>
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      background: white;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+      max-width: 400px;
+      width: 100%;
+    }
+
+    .login-container h1 {
+      text-align: center;
+      color: #333;
+      margin-bottom: 30px;
+      font-size: 28px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 5px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-group input::placeholder {
+      color: #999;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: opacity 0.3s;
+      margin-top: 20px;
+    }
+
+    .btn:hover {
+      opacity: 0.9;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    .error-msg {
+      color: #dc3545;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #f8d7da;
+      border: 1px solid #f5c6cb;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .error-msg.show {
+      display: block;
+    }
+
+    .success-msg {
+      color: #155724;
+      margin-bottom: 20px;
+      padding: 12px;
+      background: #d4edda;
+      border: 1px solid #c3e6cb;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .success-msg.show {
+      display: block;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 20px;
+      color: #666;
+    }
+
+    .login-footer a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .back-link {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #667eea;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+      color: #667eea;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <h1>Login</h1>
+    <div id="errorMsg" class="error-msg"></div>
+    <div id="successMsg" class="success-msg"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input
+          type="email"
+          id="email"
+          name="email"
+          placeholder="Enter your email"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input
+          type="password"
+          id="password"
+          name="password"
+          placeholder="Enter your password"
+          required
+          autocomplete="off"
+        />
+      </div>
+
+      <button type="submit" class="btn">Login</button>
+      <div class="loading" id="loading">Logging in...</div>
+    </form>
+
+    <div class="login-footer">
+      Don't have an account? <a href="register.html">Register here</a>
+    </div>
+
+    <a href="index.html" class="back-link">← Back to Home</a>
+  </div>
+
+  <script>
+    const loginForm = document.getElementById('loginForm');
+    const emailInput = document.getElementById('email');
+    const passwordInput = document.getElementById('password');
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const loadingDiv = document.getElementById('loading');
+
+    // Client-side input validation
+    emailInput.addEventListener('input', function () {
+      // Remove invalid characters and restrict to email format
+      this.value = this.value.toLowerCase().trim();
+    });
+
+    passwordInput.addEventListener('input', function () {
+      // Restrict password length to reasonable max (100 characters)
+      if (this.value.length > 100) {
+        this.value = this.value.substring(0, 100);
+      }
+    });
+
+    loginForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      // Clear previous messages
+      errorMsg.classList.remove('show');
+      successMsg.classList.remove('show');
+      errorMsg.textContent = '';
+      successMsg.textContent = '';
+
+      // Client-side validation
+      const email = emailInput.value.trim();
+      const password = passwordInput.value;
+
+      if (!email) {
+        errorMsg.textContent = 'Please enter your email address.';
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      if (!password) {
+        errorMsg.textContent = 'Please enter your password.';
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      if (password.length > 100) {
+        errorMsg.textContent = 'Password is too long.';
+        errorMsg.classList.add('show');
+        return;
+      }
+
+      loadingDiv.style.display = 'block';
+
+      try {
+        // Get CSRF token
+        const csrfResponse = await fetch('/api/auth/csrf-token');
+        const csrfData = await csrfResponse.json();
+
+        const response = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email, password, csrfToken: csrfData.csrfToken })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          loadingDiv.style.display = 'none';
+          errorMsg.textContent =
+            data.error || 'Login failed. Please try again.';
+          errorMsg.classList.add('show');
+          return;
+        }
+
+        successMsg.textContent = 'Login successful! Redirecting...';
+        successMsg.classList.add('show');
+
+        setTimeout(() => {
+          window.location.href = data.redirect || 'index.html';
+        }, 1500);
+      } catch (error) {
+        loadingDiv.style.display = 'none';
+        errorMsg.textContent =
+          'An error occurred. Please try again later.';
+        errorMsg.classList.add('show');
+        console.error('Login error:', error);
+      }
+    });
+  </script>
+</body>
+</html>
