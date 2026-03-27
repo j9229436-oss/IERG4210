@@ -1,3 +1,4 @@
+    console.log("Register.js loaded!");
 
     const registerForm = document.getElementById('registerForm');
     const emailInput = document.getElementById('email');
