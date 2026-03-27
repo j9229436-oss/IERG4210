@@ -36,3 +36,22 @@
 //then now i can see my code on http://20.199.85.138/
 
 //last time is static website, so i don't have to do the above, but right now i have backend so i have to make ammends
+
+Why CDN was blocked
+Your Content Security Policy (CSP) said:
+
+text
+script-src 'self'; style-src 'self' 'unsafe-inline';
+That means: only scripts and styles hosted on your own domain are allowed.
+
+When you referenced https://cdn.jsdelivr.net/..., the browser blocked it because it wasn’t 'self'.
+
+🔍 Why local files work
+When you put swiper-bundle.min.js and swiper-bundle.min.css inside /public/js/ and /public/css/, they’re served from https://s21.ierg4210.iecuhk.cc/js/... and https://s21.ierg4210.iecuhk.cc/css/....
+
+That matches 'self' in your CSP, so the browser allows them.
+
+Result: Swiper loads, Swiper is not defined disappears, and your slider initializes.
+
+⚙️ Key takeaway
+CSP is strict: it only allows what you explicitly list. By hosting libraries locally, you avoid the need to keep whitelisting external CDNs. Everything comes from your own domain, so 'self' covers it automatically.

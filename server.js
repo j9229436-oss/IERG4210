@@ -11,7 +11,7 @@ const db = require('./db');
 const { body, validationResult, query } = require('express-validator');
 
 const app = express();
-const PORT = 3000;
+const PORT = 4000;
 
 // ==================== SECURITY MIDDLEWARE ====================
 
